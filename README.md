@@ -58,6 +58,22 @@ When done unless option is un-ticked transcription is saved to clipboard.
 
 in which case user can click on `Copy transcriptions to cliboard` to get the transcriptions.
 
+## Build NWJS app
+To rebuild the app in NWJS refer to the [documentation](http://docs.nwjs.io/en/latest/For%20Users/Package%20and%20Distribute/)
+
+Install
+
+```
+npm install -g nw-builder
+```
+
+From one level above the applicaiton folder (`cd ..` from root of repo)
+```
+nwbuild -p osx64 ./transcriber
+```
+
+creates a `build` folder that contains the app
+
 ## Todo
 
 - [ ] Write proper test using testing framework.

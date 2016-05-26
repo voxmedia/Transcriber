@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Speech to text Transcriber using IBM watson speech to text API. NWJS os x desktop app.",
   "main": "index.html",
+  "always-on-top": true,
   "window": {
     "show": false,
     "frame": false,
@@ -43,5 +44,8 @@
   "bugs": {
     "url": "https://github.com/voxmedia/Transcriber/issues"
   },
-  "homepage": "https://github.com/voxmedia/Transcriber#readme"
+  "homepage": "https://github.com/voxmedia/Transcriber#readme",
+  "webkit": {
+   "plugin": true
+ }
 }
