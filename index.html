@@ -1,0 +1,249 @@
+<!-- File dialogue form to select video/audio to transcribe -->
+<input style="display:none;" id="fileDialog" type="file" />
+
+<script type="text/javascript">
+//adds basic OSX functionality and shortcut to the app.
+//https://www.npmjs.com/package/nwjs-osx-menu
+require('nwjs-osx-menu')(window);
+//dependencies
+var fs = require('fs');
+// Load NWJS native UI library
+var gui = require('nw.gui');
+// Node OS X notificaiton module
+var notifier = require('node-notifier');
+// Speech To Text API Transcription Module
+var transcribe = require('./index.js');
+//destination folder to save transcriptions for transcribe module
+var destTextFolder = "./tmp/text"
+//tmp audio folder to save audio files transcoded from video for IBM STT API
+var tmpAudioFolder = "./tmp/audio/";
+///////////////////////WATSON API KEYS
+var key;
+
+//if file exists `wttskeys.json`
+//then read it, parse to json and assign keys to Watson module.
+if (fs.existsSync('./wttskeys.json')) {
+  readWatsonAPIKeys(function(ke){
+    keys = ke;
+  })
+}else{
+  //if it doesn't exists then prompt uset to add keys
+  getWatsonAPIKeysFromUser(function(ki){
+    keys = ki;
+  })
+}
+//
+
+// Instantiate variables
+var transcriptionContnet ="";
+//save result transcription to clipboard by default
+var saveToClipboardPreference = true;
+var processingMedia = false;
+var videoFileDialog = document.getElementById('fileDialog');
+// We can not create a clipboard, we have to receive the system clipboard
+var clipboard = gui.Clipboard.get();
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////// Tray menu ////////////////////////////////////////////
+// Give it a menu
+var menu = new gui.Menu();
+// Create a tray icon
+var tray = new gui.Tray({ title: 'Transcriber', icon: 'img/logo.pngg', tooltip: 'click,select a video and get a transcription in clibpoad' });
+
+//menus
+var selectVideoMenuItem = new gui.MenuItem({ type: 'normal', label: 'Select Media' });
+var copyTranscriptionMenuItem = new gui.MenuItem({ type: 'normal', label: 'Copy Transcription to clibpoad' });
+var saveToClipboardPreferenceMenuItem = new gui.MenuItem({ type: 'checkbox', label: 'Autosave to clipboard', checked: true ,  tooltip: 'Automatically save transcription text to Clipboard when done transcribing'});
+var quitMenuItem = new gui.MenuItem({ type: 'normal', label: 'Quit' });
+
+menu.append(selectVideoMenuItem);
+menu.append(copyTranscriptionMenuItem);
+menu.append(saveToClipboardPreferenceMenuItem);
+menu.append(quitMenuItem);
+
+tray.menu = menu;
+///////////////////////// Tray Menu event listeners  ///////////////////////////
+//TODO: move just before quit
+saveToClipboardPreferenceMenuItem.click = function(){
+  //invert check box preference for whether to save result to clipboard or not
+  if(saveToClipboardPreference){
+    saveToClipboardPreference = false;
+  }else{
+    saveToClipboardPreference = true;
+  }
+}
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////    Transcribing  //////////////////////////////////////
+selectVideoMenuItem.click = function() {
+  if(processingMedia){
+    alert("currently processing media, wait for this to end, then select new file")
+  }else{
+
+    processingMedia = true;
+
+  chooseFile('#fileDialog', function(selectedFilePath){
+    //TODO add some validation check on file extension type that is video or audio type
+    //TODO: make list in array of allowed extensions. top VARs
+
+    //notification that video/audio media is being processed
+    notify('Transcriber', 'Your transcription is being processed, will notify you when is ready');
+
+    // transcribe media
+    transcribe(selectedFilePath, keys, tmpAudioFolder, destTextFolder, function(resTranscriptionFilePath){
+      //Read text of transcription
+      var contents = fs.readFileSync(resTranscriptionFilePath).toString();
+      //save content of transcription in global var.
+      transcriptionContnet = contents;
+      //if save to clipboard is ticked then
+      if(saveToClipboardPreference){
+        saveToClipboard(contents);
+        notify('Transcriber', 'Your transcription is ready and has been copied to clipboard', 'Your transcription is ready and has been copied to clipboard');
+        processingMedia = false;
+      }else {
+        notify('Transcriber', 'Your transcription is ready', 'Your transcription is ready');
+        processingMedia = false;
+      }//saveToClipboardPreference
+
+    });//transcribe
+
+  });//chooseFile
+
+  }//processingMedia
+}//selectVideoMenuItem
+////////////////////////  end of  Transcribing  ////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////  copy to clipboard ////////////////////////////////////
+copyTranscriptionMenuItem.click = function() {
+  if(transcriptionContnet ==""){
+    alert("No file selected. You first need to select a video or audio file to transcribe")
+  }else{
+    saveToClipboard(transcriptionContnet);
+    alert('Your transcription has been copied to clipboard');
+  }
+}
+//////////////////////// end of copy to clipboard //////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////// Quit Applicaiton //////////////////////////////////////
+quitMenuItem.click = function() {
+  gui.App.quit();
+}
+////////////////////////  end of Quit Applicaiton  /////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////// Helper Functions ///////////////////////////
+/**
+* Helper function to open file dialogue window
+* takes in id of html element
+* and a callback to do something with the file path once the file has been selected
+* `this.value` in event on change listener returns file path of the selected file.
+* https://github.com/nwjs/nw.js/wiki/file-dialogs#pure-javascript
+*/
+function chooseFile(name, cb) {
+  var chooser = document.querySelector(name);
+  chooser.addEventListener("change", function(evt) {
+    var filePath = this.value;
+    cb(filePath);
+  }, false);
+  chooser.click();
+}
+
+/**
+* Save to clipboard
+*/
+function saveToClipboard(content){
+  // clear bloboard
+  clipboard.clear();
+  // write something
+  clipboard.set(content, 'text');
+}
+
+/**
+* Notify funciton
+*/
+function notify(title, description, cbMessage){
+  notifier.notify({
+    'title': title,
+    'message': description,
+    sound: true,
+    // Wait with callback, until user action is taken against notification
+    //TODO:  wait not working. try growl instead?  https://github.com/mikaelbr/node-notifier#usage-growl
+    wait: true
+  }, function (err, response) {
+    // Response is response from notification
+    //only triggered if argument is passed
+    if(cbMessage){
+      alert(cbMessage)
+    }
+  });
+}
+
+
+/**
+* Function to set watson API Keys from user input
+*/
+function getWatsonAPIKeysFromUser(cb){
+  var apiKeyUsername = prompt("Please enter IBM API Key Username", "");
+  var aPIKeyPassword = prompt("Please enter IBM API Key Password", "");
+  // validation
+  // TODO: check if this means both conditions have to be true
+  if ((apiKeyUsername != null)&&(aPIKeyPassword!= null)) {
+    alert("IBM Watson Speech to text API Keys \n " +"API key 1: "+ apiKeyUsername + "\n API Key 2: "+aPIKeyPassword)
+    saveWatsonAPIKeys(apiKeyUsername,aPIKeyPassword)
+    cb({username: apiKeyUsername, password: aPIKeyPassword})
+  } else {
+    //do nothing if click cancell instead of ok on confirm
+    //TODO: raise error? send notification?
+      return;
+  }
+}
+
+
+
+/*
+* takes in username and password IBM keys
+* saves file containing json api keys with username and password attribtues
+*/
+function saveWatsonAPIKeys(username, password){
+  var watsonKeys={};
+  watsonKeys.username = username;
+  watsonKeys.password = password;
+  fs.writeFileSync('wttskeys.json', JSON.stringify(watsonKeys) );
+}
+
+/*
+* reads file containing json api keys with username and password attribtues
+* returns json object.
+*/
+function readWatsonAPIKeys(cb){
+  var k =  JSON.parse(fs.readFileSync('wttskeys.json').toString());
+  cb(k)
+}
+
+/**
+* Shortcuts
+* https://github.com/nwjs/nw.js/wiki/shortcut
+* Set hidden shortcut to set Watson API Keys
+*  cmd+shift+a
+*/
+var option = {
+  key : "Ctrl+shift+a",
+  active : function() {
+    // console.log("Global desktop keyboard shortcut: " + this.key + " active.");
+    getWatsonAPIKeysFromUser();
+    // Trigger open file
+  },
+  failed : function(msg) {
+    // :(, fail to register the |key| or couldn't parse the |key|.
+    // console.log(msg);
+  }
+};
+// Create a shortcut with |option|.
+var shortcut = new gui.Shortcut(option);
+// Register global desktop shortcut, which can work without focus.
+gui.App.registerGlobalHotKey(shortcut);
+
+</script>
