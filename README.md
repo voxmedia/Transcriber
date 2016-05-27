@@ -15,6 +15,7 @@ Should you need to change those you can use shortcut `cmd + shift + a`.
 
 These are saved inside the app as a json file `wttskeys.json` at the of the application.
 
+Which is in the `.gitignore` so that it doesn't accidentally gets added to git by mistake, when in development mode.
 
 
 ## Overview of project
