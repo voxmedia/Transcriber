@@ -3,16 +3,13 @@
   "version": "1.0.0",
   "description": "Speech to text Transcriber using IBM watson speech to text API. NWJS os x desktop app.",
   "main": "index.html",
-  "always-on-top": true,
   "window": {
     "show": false,
     "frame": false,
-    "width": 0,
-    "height": 0,
-    "toolbar": true,
-    "resizable": true,
-    "fullscreen": false,
-    "icon": "nw.icns"
+    "width": 20,
+    "height": 20,
+    "toolbar": false,
+    "icon": "app.icns"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -24,6 +21,7 @@
     "fluent-ffmpeg": "^2.1.0",
     "growl": "^1.9.2",
     "node-notifier": "^4.5.0",
+    "nw-builder": "^2.2.0",
     "nwjs-osx-menu": "0.0.4",
     "watson-developer-cloud": "^1.8.0"
   },
@@ -46,6 +44,6 @@
   },
   "homepage": "https://github.com/voxmedia/Transcriber#readme",
   "webkit": {
-   "plugin": true
- }
+    "plugin": true
+  }
 }

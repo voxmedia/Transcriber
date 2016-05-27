@@ -20,6 +20,7 @@ var tmpAudioFolder = "./tmp/audio/";
 ///////////////////////WATSON API KEYS
 var key;
 
+hideWindow()
 //if file exists `wttskeys.json`
 //then read it, parse to json and assign keys to Watson module.
 if (fs.existsSync('./wttskeys.json')) {
@@ -84,7 +85,7 @@ selectVideoMenuItem.click = function() {
   chooseFile('#fileDialog', function(selectedFilePath){
     //TODO add some validation check on file extension type that is video or audio type
     //TODO: make list in array of allowed extensions. top VARs
-
+    hideWindow();
     //notification that video/audio media is being processed
     notify('Transcriber', 'Your transcription is being processed, will notify you when is ready');
 
@@ -221,6 +222,10 @@ function saveWatsonAPIKeys(username, password){
 function readWatsonAPIKeys(cb){
   var k =  JSON.parse(fs.readFileSync('wttskeys.json').toString());
   cb(k)
+}
+
+function hideWindow(){
+  gui.Window.get().show(false);
 }
 
 /**

@@ -62,4 +62,9 @@ wttskeys.json
 demo_media
 
 # transcription files
-.txt
+*.txt
+
+# ignore build folder
+build
+
+cache

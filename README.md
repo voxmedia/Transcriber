@@ -59,9 +59,21 @@ When done unless option is un-ticked transcription is saved to clipboard.
 in which case user can click on `Copy transcriptions to cliboard` to get the transcriptions.
 
 ## Build NWJS app
+
+### Option 1
+
+Use deploy script
+
+```
+node deploy.js
+```
+
+This creates a build folder inside the repo. The build folder is in `.gitignore` to avoid accidentally pushing it to remote.
+
+### Option 2
 To rebuild the app in NWJS refer to the [documentation](http://docs.nwjs.io/en/latest/For%20Users/Package%20and%20Distribute/)
 
-Install
+Install `nw-builder`
 
 ```
 npm install -g nw-builder
@@ -77,7 +89,7 @@ creates a `build` folder that contains the app
 ## Todo
 
 - [ ] Write proper test using testing framework.
-- [ ] IBM has a size limit of 100mb per audio post request. Figure out if there's a use case when converting video to audio it exceeds that size. Rough test with 54gb video to audio with that module ended up 50 to 70 mb. So it would seem ok for now?
+- [ ] IBM has a size limit of 100mb per audio post request. Double check if there's a use case when converting video to audio it exceeds that size. Rough test with 54gb video to audio with that module ended up 50 to 70 mb. So it would seem ok for now?
 
 
 <!-- icon img  https://pixabay.com/en/switch-detonator-buttons-153517/ -->
