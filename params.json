@@ -1,0 +1,6 @@
+{
+  "name": "Transcriber",
+  "tagline": "OS X desktop application to transcibe video or audio files using IBM Watson Speech to text API",
+  "body": "To use this app you need to get IBM Watson API keys for their speech to text service, by making an account with [Bluemix](https://console.ng.bluemix.net/)\r\n\r\nFirst you `Select Media`, audio or video you'd like to transcribe.\r\n\r\n![MenuTray](https://raw.githubusercontent.com/voxmedia/Transcriber/master/img/transciber.png)\r\n\r\nNotifications show when a transcription as started and when it's finished.\r\n\r\nOn completion a editable text area shows you the transcription.\r\n\r\n![Demo](https://raw.githubusercontent.com/voxmedia/Transcriber/master/img/demo.png)\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
