@@ -109,6 +109,9 @@ selectVideoMenuItem.click = function() {
     //notification that video/audio media is being processed
     notify('Transcriber', 'Your transcription is being processed, will notify you when is ready');
 
+    // Clear
+      // document.getElementById('transcription').innerHTML="";
+
     // transcribe media
     transcribe(selectedFilePath, keys, tmpAudioFolder, destTextFolder, function(resTranscriptionFilePath){
       //Read text of transcription
@@ -119,7 +122,7 @@ selectVideoMenuItem.click = function() {
       if(saveToClipboardPreference){
         saveToClipboard(contents);
 
-        document.getElementById('transcription').innerHTML+=contents;
+        document.getElementById('transcription').innerHTML=contents;
 
         notify('Transcriber', 'Your transcription is ready and has been copied to clipboard', 'Your transcription is ready and has been copied to clipboard');
         processingMedia = false;
