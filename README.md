@@ -1,5 +1,7 @@
 # Lightweight Speech to text desktop app for OSX Using IBM Watson API
 
+This app was an initial prototype to test the quality of IBM STT, and is no longer activly supported I am now working on a more full fledge version at https://github.com/OpenNewsLabs/autoEdit_2 ( http://www.autoedit.io ).
+
 ## IBM Speech to text API
 
 To use this app you need to get IBM Watson API keys for their speech to text service, by making an account with [Bluemix](https://console.ng.bluemix.net/)
